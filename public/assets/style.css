@@ -1,0 +1,77 @@
+/* #region common */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --background-main: #80D39B;
+    --background-cont: #315659;
+    --font-colour: #000000;
+    --title-colour: #330036;
+}
+/* #endregion common */
+
+/* #region main */
+body {
+    background-color: var(--background-main);
+    padding: 15% 0;
+    font-family: "Roboto Mono", monospace;
+    font-weight: 400;
+    font-size: larger;
+    color: var(--font-colour);
+
+    .container {
+        background-color: var(--background-cont);
+        margin: auto;
+        padding: 3rem;
+        width: 80%;
+        border-radius: 2rem;
+        box-shadow: #363636 0px 0px 10px;
+
+        .row {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            padding: 3rem 0;
+            gap: 3rem;
+
+            ul {
+
+                li {
+                    list-style: none;
+                    
+                    .card {
+                        padding: 1rem;
+
+                        .card-title {
+                            text-align: center;
+                            font-size: xx-large;
+                            font-weight: 700;
+                            color: var(--title-colour);
+                        }
+        
+                        .card-img {
+                            padding: 2rem;
+                            text-align: center;
+            
+                            img {
+                                width: 80%;
+                            }
+
+                            .card-desc {
+                                padding: 1rem;
+                            }
+
+                            .card-tags {
+                                color: var(--background-main);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+/* #endregion main */

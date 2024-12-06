@@ -13,13 +13,16 @@ const index = (req, res) => {
     // creazione query
     connection.query(sql, (err, results) => {
 
+        // test 500
         if (err) return res.status(500).json({ error: err });
 
+        // variabile risposta
         const responseData = {
             data: results,
             count: results.length
         }
 
+        // consegna risposta
         res.status(200).json(responseData);
     })
 }
@@ -50,16 +53,28 @@ const store = (req, res) => {
 
 // creazione show R
 const show = (req, res) => {
-    const post = posts.find(post => post.slug === (req.params.slug));
+    const id = req.params.slug;
+    const sql = `SELECT * FROM posts WHERE id=?`;
 
-    // condizioni per ritorno
-    if (!post) {
-        res.status(404).json({
-            error: '404: post not found'
+    // creazione query
+    connection.query(sql, [id], (err, results) => {
+
+        // test 500
+        if (err) return res.status(500).json({ error: err })
+
+        // test 404
+        if (!results[0]) return res.status(404).json({
+            error: `No posts found at this id: ${id}`
         })
-    }
-    res.json({
-        data: post
+
+        // variabile risposta
+        const responseData = {
+            data: results[0],
+            count: results.length
+        }
+
+        // consegna risposta
+        res.status(200).json(responseData);
     })
 }
 
@@ -97,19 +112,21 @@ const update = (req, res) => {
 // creazione delete D
 const destroy = (req, res) => {
 
-    const id = req.params.id;
+    const id = req.params.slug;
     const sql = 'DELETE FROM posts WHERE id=?';
 
     // creazione query
     connection.query(sql, [id], (err, results) => {
 
+        // test 500
         if (err) return res.status(500).json({ error: err })
-        
+
         // test 404
         if (results.affectedRows === 0) return res.status(404).json({
             error: `No posts found at this id: ${id}`
         })
 
+        // consegna risposta
         return res.json({
             status: 204,
             affectedRows: results.affectedRows

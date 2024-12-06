@@ -6,23 +6,51 @@ const fs = require('fs');
 
 // creazione index
 const index = (req, res) => {
-
-    const sql = 'SELECT * FROM posts';
+    const sqlPost = 'SELECT * FROM posts';
+    const sqlTags = `
+    SELECT tags.*, post_tag.post_id
+    FROM tags
+    JOIN post_tag ON tags.id = post_tag.tag_id
+    `;
 
     // creazione query
-    connection.query(sql, (err, results) => {
+    connection.query(sqlPost, (err, results) => {
 
         // test 500
         if (err) return res.status(500).json({ error: err });
 
-        // variabile risposta
-        const responseData = {
-            data: results,
-            count: results.length
-        }
+        // test 404
+        if (!results.length) return res.status(404).json({
+            error: 'No tags found'
+        })
 
-        // consegna risposta
-        res.status(200).json(responseData);
+        // creazione query dei tag
+        connection.query(sqlTags, (err, tagResults) => {
+
+            // test 500
+            if (err) return res.status(500).json({ error: err })
+
+            // test 404
+            if (!results[0]) return res.status(404).json({
+                error: 'No tags found'
+            })
+
+            // map e filter dentro map (?? metodo meno orribile da trovare) per combinare post e tags
+            const postTags = results.map(post => {
+
+                const tags = tagResults
+                    .filter(tag => tag.post_id === post.id)
+                    .map(tag => tag.label);
+
+                // ritorno post con tags
+                return { ...post, tags };
+            })
+
+            // consegna risposta
+            res.status(200).json({
+                data: postTags
+            });
+        })
     })
 }
 
@@ -82,7 +110,7 @@ const show = (req, res) => {
 
             // test 404
             if (!results[0]) return res.status(404).json({
-                error: `No posts found at this id: ${id}`
+                error: 'No tags found'
             })
 
             post.tags = tagResults;

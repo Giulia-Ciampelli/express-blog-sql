@@ -67,7 +67,7 @@ const show = (req, res) => {
         if (err) return res.status(500).json({ error: err })
 
         // test 404
-        if (!postResults[0]) return res.status(404).json({
+        if (!results[0]) return res.status(404).json({
             error: `No posts found at this id: ${id}`
         })
 
@@ -81,7 +81,7 @@ const show = (req, res) => {
             if (err) return res.status(500).json({ error: err })
 
             // test 404
-            if (!postResults[0]) return res.status(404).json({
+            if (!results[0]) return res.status(404).json({
                 error: `No posts found at this id: ${id}`
             })
 

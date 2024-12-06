@@ -1,20 +1,37 @@
-// importazione db
-const posts = require('../db/db.js');
+// importazione vero db
+// const posts = require('../db/db.js');
+const connection = require('../db/db.js');
 
 // importazione modulo fs
 const fs = require('fs');
 
 // creazione index
 const index = (req, res) => {
-    res.json({
-        data: posts,
-        count: posts.length
+
+    const sql = 'SELECT * FROM posts';
+
+    // connessione a db sql
+    connection.query(sql, (err, results) => {
+
+        if (err) return res.status(500).json({ error: err });
+
+        const responseData = {
+            data: results,
+            count: results.length
+        }
+
+        res.status(200).json(responseData);
     })
+
+    // res.json({
+    //     data: posts,
+    //     count: posts.length
+    // })
 }
 
 // creazione store C
 const store = (req, res) => {
-    
+
     // creazione oggetto nuovo
     const postNew = {
         title: req.body.title,
@@ -23,12 +40,12 @@ const store = (req, res) => {
         image: req.body.image,
         tags: req.body.tags
     }
-    
+
     posts.push(postNew);
-    
+
     // update db
     fs.writeFileSync('./db/db.js', `module.exports = ${JSON.stringify(posts, null, 4)}`);
-    
+
     res.json({
         status: 201,
         data: posts,
@@ -39,9 +56,9 @@ const store = (req, res) => {
 // creazione show R
 const show = (req, res) => {
     const post = posts.find(post => post.slug === (req.params.slug));
-    
+
     // condizioni per ritorno
-    if(!post) {
+    if (!post) {
         res.status(404).json({
             error: '404: post not found'
         })
@@ -53,12 +70,12 @@ const show = (req, res) => {
 
 // creazione update U
 const update = (req, res) => {
-    
+
     // parametro per trovare il post
     const post = posts.find(post => post.slug === (req.params.slug));
 
     // res di errore
-    if(!post) {
+    if (!post) {
         res.status(404).json({
             error: '404: post not found'
         })
@@ -70,7 +87,7 @@ const update = (req, res) => {
     post.content = req.body.content;
     post.image = req.body.image;
     post.tags = req.body.tags;
-    
+
     // aggiorna il db
     fs.writeFileSync('./db/db.js', `module.exports = ${JSON.stringify(posts, null, 4)}`);
 
@@ -89,7 +106,7 @@ const destroy = (req, res) => {
     const post = posts.find(post => post.slug === req.params.slug);
 
     // res di errore
-    if(!post) {
+    if (!post) {
         return res.status(404).json({
             error: '404: post not found'
         })
@@ -99,7 +116,7 @@ const destroy = (req, res) => {
     const postsDestroy = posts.filter(post => post.slug !== req.params.slug);
 
     // secondo test
-    if(postsDestroy.length === posts.length) {
+    if (postsDestroy.length === posts.length) {
         res.status(500).json({
             error: '500: no change in array'
         })

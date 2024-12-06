@@ -86,6 +86,7 @@ const show = (req, res) => {
     SELECT tags.*
     FROM tags
     JOIN post_tag ON tags.id = post_tag.tag_id
+    WHERE post_tag.post_id=?
     `;
 
     // creazione query
@@ -113,7 +114,10 @@ const show = (req, res) => {
                 error: 'No tags found'
             })
 
-            post.tags = tagResults;
+            // map (stavolta semplice, per fortuna) dei label tag
+            const tags = tagResults.map(tag => tag.label);
+
+            post.tags = tags;
 
             // variabile risposta
             const responseData = {

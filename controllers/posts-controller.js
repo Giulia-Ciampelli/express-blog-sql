@@ -1,5 +1,4 @@
 // importazione vero db
-// const posts = require('../db/db.js');
 const connection = require('../db/db.js');
 
 // importazione modulo fs
@@ -54,27 +53,48 @@ const store = (req, res) => {
 // creazione show R
 const show = (req, res) => {
     const id = req.params.slug;
-    const sql = `SELECT * FROM posts WHERE id=?`;
+    const sqlPost = `SELECT * FROM posts WHERE id=?`;
+    const sqlTags = `
+    SELECT tags.*
+    FROM tags
+    JOIN post_tag ON tags.id = post_tag.tag_id
+    `;
 
     // creazione query
-    connection.query(sql, [id], (err, results) => {
+    connection.query(sqlPost, [id], (err, results) => {
 
         // test 500
         if (err) return res.status(500).json({ error: err })
 
         // test 404
-        if (!results[0]) return res.status(404).json({
+        if (!postResults[0]) return res.status(404).json({
             error: `No posts found at this id: ${id}`
         })
 
-        // variabile risposta
-        const responseData = {
-            data: results[0],
-            count: results.length
-        }
+        // preparazione dati post
+        const post = results[0];
 
-        // consegna risposta
-        res.status(200).json(responseData);
+        // creazione query dei tag
+        connection.query(sqlTags, [id], (err, tagResults) => {
+
+            // test 500
+            if (err) return res.status(500).json({ error: err })
+
+            // test 404
+            if (!postResults[0]) return res.status(404).json({
+                error: `No posts found at this id: ${id}`
+            })
+
+            post.tags = tagResults;
+
+            // variabile risposta
+            const responseData = {
+                data: post
+            }
+
+            // consegna risposta
+            res.status(200).json(responseData);
+        })
     })
 }
 

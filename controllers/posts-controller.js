@@ -10,7 +10,7 @@ const index = (req, res) => {
 
     const sql = 'SELECT * FROM posts';
 
-    // connessione a db sql
+    // creazione query
     connection.query(sql, (err, results) => {
 
         if (err) return res.status(500).json({ error: err });
@@ -22,11 +22,6 @@ const index = (req, res) => {
 
         res.status(200).json(responseData);
     })
-
-    // res.json({
-    //     data: posts,
-    //     count: posts.length
-    // })
 }
 
 // creazione store C
@@ -102,34 +97,23 @@ const update = (req, res) => {
 // creazione delete D
 const destroy = (req, res) => {
 
-    // parametro per trovare il post
-    const post = posts.find(post => post.slug === req.params.slug);
+    const id = req.params.id;
+    const sql = 'DELETE FROM posts WHERE id=?';
 
-    // res di errore
-    if (!post) {
-        return res.status(404).json({
-            error: '404: post not found'
+    // creazione query
+    connection.query(sql, [id], (err, results) => {
+
+        if (err) return res.status(500).json({ error: err })
+        
+        // test 404
+        if (results.affectedRows === 0) return res.status(404).json({
+            error: `No posts found at this id: ${id}`
         })
-    }
 
-    // rimozione dal db
-    const postsDestroy = posts.filter(post => post.slug !== req.params.slug);
-
-    // secondo test
-    if (postsDestroy.length === posts.length) {
-        res.status(500).json({
-            error: '500: no change in array'
+        return res.json({
+            status: 204,
+            affectedRows: results.affectedRows
         })
-    }
-
-    // aggiornamento db
-    fs.writeFileSync('./db/db.js', `module.exports = ${JSON.stringify(postsDestroy, null, 4)}`);
-
-    // ritorno del db aggiornato
-    res.status(200).json({
-        status: 200,
-        data: postsDestroy,
-        count: postsDestroy.length
     })
 }
 
